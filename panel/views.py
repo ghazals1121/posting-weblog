@@ -93,8 +93,8 @@ def edit_post(request):
         return JsonResponse({
             'message': 'no post specified'}, status=400)
     post_id = request.data['post_id']
-    post = Post.objects.get(post_id=post_id)
-    if post:
+    try:
+        post = Post.objects.get(post_id=post_id)
         if post.author == author:
             if 'title' in request.data.keys():
                 post.title = request.data['title']
@@ -104,10 +104,9 @@ def edit_post(request):
                 post.category = request.data['category']
             post.save()
             return Response("post updated", status=200)
-
         else:
             return Response("you are not the author of post", status=400)
-    else:
+    except Post.DoesNotExist:
         return Response("no such post", status=400)
 
 
@@ -120,14 +119,16 @@ def delete_post(request):
         return JsonResponse({
             'message': 'no post specified'}, status=400)
     post_id = request.data['post_id']
-    post = Post.objects.get(post_id=post_id)
-    if post:
-        if post.author == author:
-            post.delete()
-        else:
-            return Response("you are not the author of post", status=400)
-    else:
+    try:
+        post = Post.objects.get(post_id=post_id)
+        if post:
+            if post.author == author:
+                post.delete()
+            else:
+                return Response("you are not the author of post", status=400)
+    except Post.DoesNotExist:
         return Response("no such post", status=400)
+
 
 
 @api_view(['POST'])
@@ -144,12 +145,13 @@ def post_comment(request):
             'message': 'no text for comment'}, status=400)
     post_id = request.data['post_id']
     text = request.data['text']
-    post = Post.objects.get(post_id=post_id)
-    if post:
+    try:
+        post = Post.objects.get(post_id=post_id)
         new_comment = Comment.objects.create(comment_id=comment_id, author=author, post=post, text=text)
         return Response('comment created', status=200)
-    else:
+    except Post.DoesNotExist:
         return Response("no such post", status=400)
+
 
 
 @api_view(['POST'])
@@ -166,12 +168,13 @@ def post_reply(request):
             'message': 'no text for reply'}, status=400)
     comment_id = request.data['comment_id']
     text = request.data['text']
-    comment = Comment.objects.get(comment_id=comment_id)
-    if comment:
+    try:
+        comment = Comment.objects.get(comment_id=comment_id)
         new_reply = Reply.objects.create(reply_id=reply_id, author=author, text=text, comment=comment)
         return Response('reply created', status=200)
-    else:
+    except Comment.DoesNotExist:
         return Response("no such comment", status=400)
+
 
 
 @api_view(['POST'])
@@ -183,14 +186,15 @@ def post_like(request):
         return JsonResponse({
             'message': 'no post specified'}, status=400)
     post_id = request.data['post_id']
-    post = Post.objects.get(post_id=post_id)
-    if post:
+    try:
+        post = Post.objects.get(post_id=post_id)
         post.likes = post.likes + 1
         post.users_liked.add(liker)
         post.save()
         return Response("post liked", status=200)
-    else:
+    except Post.DoesNotExist:
         return Response("no such post", status=400)
+
 
 
 @api_view(['POST'])
@@ -202,14 +206,15 @@ def comment_like(request):
         return JsonResponse({
             'message': 'no comment specified'}, status=400)
     comment_id = request.data['comment_id']
-    comment = Comment.objects.get(comment_id=comment_id)
-    if comment:
+    try:
+        comment = Comment.objects.get(comment_id=comment_id)
         comment.likes = comment.likes + 1
         comment.users_liked.add(liker)
         comment.save()
         return Response("comment liked", status=200)
-    else:
+    except Comment.DoesNotExist:
         return Response("no such comment", status=400)
+
 
 
 @api_view(['POST'])
@@ -240,11 +245,11 @@ def comment_dislike(request):
         return JsonResponse({
             'message': 'no comment specified'}, status=400)
     comment_id = request.data['comment_id']
-    comment = Comment.objects.get(comment_id=comment_id)
-    if comment:
+    try:
+        comment = Comment.objects.get(comment_id=comment_id)
         comment.dislikes = comment.dislikes + 1
         comment.users_disliked.add(disliker)
         comment.save()
         return Response("comment disliked", status=200)
-    else:
+    except Comment.DoesNotExist:
         return Response("no such comment", status=400)
