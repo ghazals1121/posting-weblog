@@ -1,18 +1,11 @@
-from django.shortcuts import render
-
-from django.shortcuts import render
-import json
 from django.contrib.auth.decorators import login_required
-from django.contrib.sessions.models import Session
-from django.http import HttpResponse, JsonResponse
-from django.conf import settings
-from django.contrib.auth import login, logout, authenticate
+from django.http import JsonResponse
+from django.contrib.auth import login, logout
 from rest_framework import views, permissions, authentication
 from rest_framework.decorators import api_view, authentication_classes
-from rest_framework.response import Response, SimpleTemplateResponse
+from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
-from rest_framework.views import APIView
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 # Create your views here.
 from panel.models import Post, Comment, Reply
@@ -130,7 +123,6 @@ def delete_post(request):
         return Response("no such post", status=400)
 
 
-
 @api_view(['POST'])
 @login_required()
 @authentication_classes([CsrfExemptSessionAuthentication])
@@ -151,7 +143,6 @@ def post_comment(request):
         return Response('comment created', status=200)
     except Post.DoesNotExist:
         return Response("no such post", status=400)
-
 
 
 @api_view(['POST'])
@@ -176,7 +167,6 @@ def post_reply(request):
         return Response("no such comment", status=400)
 
 
-
 @api_view(['POST'])
 @login_required()
 @authentication_classes([CsrfExemptSessionAuthentication])
@@ -196,7 +186,6 @@ def post_like(request):
         return Response("no such post", status=400)
 
 
-
 @api_view(['POST'])
 @login_required()
 @authentication_classes([CsrfExemptSessionAuthentication])
@@ -214,7 +203,6 @@ def comment_like(request):
         return Response("comment liked", status=200)
     except Comment.DoesNotExist:
         return Response("no such comment", status=400)
-
 
 
 @api_view(['POST'])
