@@ -241,3 +241,78 @@ def comment_dislike(request):
         return Response("comment disliked", status=200)
     except Comment.DoesNotExist:
         return Response("no such comment", status=400)
+
+
+@api_view(['GET'])
+@login_required()
+@authentication_classes([CsrfExemptSessionAuthentication])
+def get_posts(request):
+    msg = []
+    try:
+        posts = Post.objects.all()
+        post_list = list(posts.values('post_id', 'title', 'likes', 'dislikes'))
+        for post in post_list:
+            try:
+                post = post['post_id']
+                comments = Comment.objects.filter(post=post)
+                comment_list = list(comments.values('comment_id','text', 'likes', 'dislikes'))
+                for comment in comment_list:
+                    comment = comment['comment_id']
+                    try:
+                        replies = Reply.objects.filter(comment=comment)
+                        reply_list = list(replies.values('reply_id','text'))
+                        for reply in reply_list:
+                            reply = reply['reply_id']
+                            msg.append("post_title: {} post_like: {} post_dislike: {} comment:{}  comment_like: {} "
+                                       "comment_dislike: {} reply: {}".format(str(post['title']),
+                                                                              str(post['likes']),
+                                                                              str(post['dislike']),
+                                                                              str(comment['text']),
+                                                                              str(comment['likes']),
+                                                                              str(comment['dislikes']),
+                                                                              str(reply['text'])))
+                    except Reply.DoesNotExist:
+                        msg.append("no reply for this comment")
+            except Comment.DoesNotExist:
+                msg.append("no comment for this post")
+    except Post.DoesNotExist:
+        return Response("no post for this user", status=400)
+    return Response(msg,status=200)
+
+
+@api_view(['GET'])
+@login_required()
+@authentication_classes([CsrfExemptSessionAuthentication])
+def get_users_posts(request):
+    user = request.user
+    msg = []
+    try:
+        posts = Post.objects.filter(author=user)
+        post_list = list(posts.values('post_id', 'title', 'likes', 'dislikes'))
+        for post in post_list:
+            try:
+                post = post['post_id']
+                comments = Comment.objects.filter(post=post)
+                comment_list = list(comments.values('comment_id','text', 'likes', 'dislikes'))
+                for comment in comment_list:
+                    comment = comment['comment_id']
+                    try:
+                        replies = Reply.objects.filter(comment=comment)
+                        reply_list = list(replies.values('reply_id','text'))
+                        for reply in reply_list:
+                            reply = reply['reply_id']
+                            msg.append("post_title: {} post_like: {} post_dislike: {} comment:{}  comment_like: {} "
+                                       "comment_dislike: {} reply: {}".format(str(post['title']),
+                                                                              str(post['likes']),
+                                                                              str(post['dislike']),
+                                                                              str(comment['text']),
+                                                                              str(comment['likes']),
+                                                                              str(comment['dislikes']),
+                                                                              str(reply['text'])))
+                    except Reply.DoesNotExist:
+                        msg.append("no reply for this comment")
+            except Comment.DoesNotExist:
+                msg.append("no comment for this post")
+    except Post.DoesNotExist:
+        return Response("no post for this user", status=400)
+    return Response(msg,status=200)

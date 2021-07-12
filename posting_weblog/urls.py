@@ -32,7 +32,9 @@ urlpatterns = [
     path('api/like_comment/', views.comment_like),
     path('api/dislike_post/', views.post_dislike),
     path('api/dislike_comment/', views.comment_dislike),
-    # path('api/get_users_posts/', views.get_users_posts),
+    path('api/get_users_posts/', views.get_users_posts),
+    path('api/get_posts/', views.get_posts),
+
     # path('api/get_users_comments/', views.get_users_comments),
     # path('api/get_posts_comments/', views.get_posts_comments),
     # path('api/get_posts_likes/', views.get_posts_likes),
